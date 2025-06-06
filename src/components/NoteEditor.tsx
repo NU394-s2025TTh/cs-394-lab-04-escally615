@@ -1,11 +1,11 @@
 // REFERENCE SOLUTION - Do not distribute to students
 // src/components/NoteEditor.tsx
-import { doc, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+
 import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import app from '../firebase-config';
 // TODO: Import the saveNote function from your noteService call this to save the note to firebase
+import { saveNote } from '../services/noteService';
 //import { saveNote } from '../services/noteService';
 import { Note } from '../types/Note';
 
@@ -14,11 +14,11 @@ interface NoteEditorProps {
   onSave?: (note: Note) => void;
 }
 // remove the eslint disable when you implement on save
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
   // State for the current note being edited
   // remove the eslint disable when you implement the state
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [note, setNote] = useState<Note>(() => {
     return (
       initialNote || {
@@ -33,10 +33,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
   // TODO: create state for saving status
   // TODO: createState for error handling
   const [loading, setLoading] = useState(false);
-  //const [editing, setEditing] = useState(false);
-  //const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const db = getFirestore(app);
 
   // // TODO: Update local state when initialNote changes in a useEffect (if editing an existing note)
   // // This effect runs when the component mounts or when initialNote changes
@@ -61,31 +59,35 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
   //TODO: on form submit create a "handleSubmit" function that saves the note to Firebase and calls the onSave callback if provided
   // This function should also handle any errors that occur during saving and update the error state accordingly.
 
-  const userRef = doc(db, 'notes', note.id);
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
+    setSaving(true);
     setError(null);
+
+    if (!note.title || !note.content) {
+      setError('Need both title and content to save note.');
+      setSaving(false);
+      return;
+    }
     try {
-      const noteData = {
+      const newNoteData = {
+        id: uuidv4(),
         title: note.title,
         content: note.content,
         lastUpdated: Date.now(),
       };
-      const docSnapshot = await getDoc(userRef);
-      if (docSnapshot.exists()) {
-        await updateDoc(userRef, noteData);
-      } else {
-        await setDoc(userRef, { id: note.id, ...noteData });
-      }
+
+      await saveNote(note);
 
       if (onSave) {
-        onSave({ ...note, ...noteData });
+        onSave(note);
       }
+
+      setNote(newNoteData);
     } catch (error) {
       console.error('Error saving note:', error);
-      setError(`Error saving note: ${note.id}`);
+      setError(`error: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -112,7 +114,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
           required
           placeholder="Enter note title"
           onChange={handleChange}
-          disabled={loading}
+          disabled={saving}
         />
       </div>
       <div className="form-group">
@@ -125,7 +127,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
           required
           placeholder="Enter note content"
           onChange={handleChange}
-          disabled={loading}
+          disabled={saving}
         />
       </div>
       {error && (
@@ -135,7 +137,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
       )}
       <div className="form-actions">
         <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Note'}
+          {saving ? 'Saving...' : 'Save Note'}
         </button>
       </div>
     </form>

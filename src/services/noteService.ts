@@ -105,5 +105,7 @@ export function subscribeToNotes(
     },
   );
 
-  return unsubscribe;
+  return () => {
+    unsubscribe();
+  };
 }
