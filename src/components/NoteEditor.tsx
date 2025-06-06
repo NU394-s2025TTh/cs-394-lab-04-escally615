@@ -67,20 +67,20 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
       return;
     }
     try {
-      const newNoteData = {
-        id: uuidv4(),
-        title: note.title,
-        content: note.content,
-        lastUpdated: Date.now(),
-      };
-
       await saveNote(note);
 
       if (onSave) {
         onSave(note);
       }
 
-      setNote(newNoteData);
+      if (!initialNote) {
+        setNote({
+          id: uuidv4(),
+          title: '',
+          content: '',
+          lastUpdated: Date.now(),
+        });
+      }
     } catch (error) {
       console.error('Error saving note:', error);
       setError(`error: ${error}`);
