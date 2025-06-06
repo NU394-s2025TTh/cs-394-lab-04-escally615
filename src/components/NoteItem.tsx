@@ -23,11 +23,13 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit }) => {
       setError(null);
       try {
         await deleteNote(note.id);
+        setTimeout(() => {
+          setDeleting(false);
+        }, 100);
       } catch (err) {
+        setDeleting(false);
         console.error('Failed to delete note:', err);
         setError('Failed to delete note. Please try again.');
-      } finally {
-        setDeleting(false);
       }
     }
   };
