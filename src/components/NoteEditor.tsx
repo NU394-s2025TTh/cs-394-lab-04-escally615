@@ -13,11 +13,9 @@ interface NoteEditorProps {
   initialNote?: Note;
   onSave?: (note: Note) => void;
 }
-// remove the eslint disable when you implement on save
 
 const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
   // State for the current note being edited
-  // remove the eslint disable when you implement the state
 
   const [note, setNote] = useState<Note>(() => {
     return (
@@ -32,7 +30,6 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
 
   // TODO: create state for saving status
   // TODO: createState for error handling
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,7 +58,6 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
     setSaving(true);
     setError(null);
 
@@ -89,7 +85,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
       console.error('Error saving note:', error);
       setError(`error: ${error}`);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -136,8 +132,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
         </div>
       )}
       <div className="form-actions">
-        <button type="submit" disabled={loading}>
-          {saving ? 'Saving...' : 'Save Note'}
+        <button type="submit" disabled={saving}>
+          {initialNote ? 'Update Note' : 'Save Note'}
         </button>
       </div>
     </form>
