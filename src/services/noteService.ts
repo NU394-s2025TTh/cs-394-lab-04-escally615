@@ -1,8 +1,19 @@
 // REFERENCE SOLUTION - Do not distribute to students
 // src/services/noteService.ts
 // TODO: Import functions like setDoc, deleteDoc, onSnapshot from Firebase Firestore to interact with the database
-import { DocumentData, QuerySnapshot, Unsubscribe } from 'firebase/firestore';
 
+import {
+  collection,
+  deleteDoc,
+  doc,
+  DocumentData,
+  onSnapshot,
+  QuerySnapshot,
+  setDoc,
+  Unsubscribe,
+} from 'firebase/firestore';
+
+import { db } from '../firebase-config';
 // TODO: Import the Firestore instance from your Firebase configuration file
 // import { db } from '../firebase-config';
 import { Note, Notes } from '../types/Note';
@@ -20,6 +31,13 @@ const NOTES_COLLECTION = 'notes';
 export async function saveNote(note: Note): Promise<void> {
   // TODO: save the note to Firestore in the NOTES_COLLECTION collection
   // Use setDoc to create or update the note document; throw an error if it fails
+  try {
+    const noteRef = doc(db, NOTES_COLLECTION, note.id);
+    await setDoc(noteRef, note);
+  } catch (error) {
+    console.error('Failed to save note:', error);
+    throw error;
+  }
 }
 
 /**
@@ -32,6 +50,13 @@ export async function saveNote(note: Note): Promise<void> {
 export async function deleteNote(noteId: string): Promise<void> {
   // TODO: delete the note from Firestore in the NOTES_COLLECTION collection
   // Use deleteDoc to remove the note document; throw an error if it fails
+  try {
+    const noteRef = doc(db, NOTES_COLLECTION, noteId);
+    await deleteDoc(noteRef);
+  } catch (error) {
+    console.error('Failed to delete note:', error);
+    throw error;
+  }
 }
 
 /**
@@ -67,5 +92,18 @@ export function subscribeToNotes(
   // Use onSnapshot to listen for changes; call onNotesChange with the transformed notes
   // Handle errors by calling onError if provided
   // Return s proper (not empty) unsubscribe function to stop listening for changes
-  return () => {};
+  const collectionRef = collection(db, NOTES_COLLECTION);
+  const unsubscribe = onSnapshot(
+    collectionRef,
+    (snapshot) => {
+      const notes = transformSnapshot(snapshot);
+      onNotesChange(notes);
+    },
+    (error) => {
+      console.error('Error:', error);
+      if (onError) onError(error);
+    },
+  );
+
+  return unsubscribe;
 }

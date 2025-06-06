@@ -5,20 +5,14 @@
   },
   "hosting": {
     "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   },
   "emulators": {
     "firestore": {
       "port": 8080
     },
     "hosting": {
-      "port": 5000
+      "port": 3000
     },
     "ui": {
       "enabled": true
