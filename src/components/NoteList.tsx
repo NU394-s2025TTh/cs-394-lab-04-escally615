@@ -30,7 +30,7 @@ const NoteList: React.FC<NoteListProps> = ({ onEditNote }) => {
       },
       (err) => {
         console.error('Failed to load notes:', err);
-        setError('Failed to load notes');
+        setError('Failed to load notes.');
         setLoading(false);
       },
     );

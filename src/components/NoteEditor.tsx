@@ -83,7 +83,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialNote, onSave }) => {
       }
     } catch (error) {
       console.error('Error saving note:', error);
-      setError(`error: ${error}`);
+      setError('Failed to save note.');
     } finally {
       setSaving(false);
     }
