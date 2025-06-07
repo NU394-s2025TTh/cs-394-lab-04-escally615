@@ -29,7 +29,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit }) => {
       } catch (err) {
         setDeleting(false);
         console.error('Failed to delete note:', err);
-        setError('Failed to delete note. Please try again.');
+        setError('Failed to delete note.');
       }
     }
   };
@@ -104,16 +104,22 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit }) => {
       <div className="note-header">
         <h3>{note.title}</h3>
         <div className="note-actions">
-          <button className="edit-button" onClick={handleEdit} disabled={deleting}>
-            Edit
-          </button>
+          {onEdit && (
+            <button className="edit-button" onClick={handleEdit} disabled={deleting}>
+              Edit
+            </button>
+          )}
           <button className="delete-button" onClick={handleDelete} disabled={deleting}>
             {deleting ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       </div>
       <div className="note-content">{note.content}</div>
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
       <div className="note-footer">
         <span title={formatDate(note.lastUpdated)}>
           Last updated: {getTimeAgo(note.lastUpdated)}
